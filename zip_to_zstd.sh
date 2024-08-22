@@ -18,9 +18,11 @@ fi
 # Extract the base name of the file (without extension)
 base_name=$(basename "$input_zip" .zip)
 
+# Get the directory of the input file
+input_dir=$(dirname "$input_zip")
+
 # Create a temporary directory to extract the zip contents
-# temp_dir=$(mktemp -d)
-temp_dir=$(pwd)/tmp
+temp_dir=$(mktemp -d -p "$input_dir")
 
 # Extract the contents of the zip file to the temporary directory
 unzip "$input_zip" -d "$temp_dir"
@@ -30,7 +32,7 @@ tar_exclude="--exclude=.DS_Store --exclude=.localized --exclude=._* --exclude=.F
 
 # Compress the extracted files using zstd
 output_file="${base_name}.tar.zst"
-tar -C "$temp_dir" $tar_exclude -cf - . | zstd -19 -o "$output_file"
+tar -C "$temp_dir" $tar_exclude -cf - . | zstd -19 -o "$input_dir/$output_file"
 
 # Clean up the temporary directory
 rm -rf "$temp_dir"
